@@ -1,0 +1,37 @@
+{
+  "name": "cesium",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview",
+    "commit": "git-cz"
+  },
+  "dependencies": {
+    "@commitlint/config-conventional": "^19.2.2",
+    "cesium": "^1.120.0",
+    "commitizen": "^4.3.0",
+    "cz-git": "^1.9.4",
+    "element-plus": "^2.8.0",
+    "vite-plugin-cesium": "^1.2.23",
+    "vue": "^3.4.35"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.1.2",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.41",
+    "tailwindcss": "^3.4.10",
+    "typescript": "^5.5.3",
+    "unplugin-auto-import": "^0.18.2",
+    "unplugin-vue-components": "^0.27.4",
+    "vite": "^5.4.0",
+    "vue-tsc": "^2.0.29"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-git"
+    }
+}
+}
