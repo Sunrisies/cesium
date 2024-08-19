@@ -20,47 +20,107 @@ if (navigator.geolocation) {
     }
   )
 }
-let viewer: Cesium.Viewer = ref(null)
+let viewer = ref<Cesium.Viewer | null>(null)
 type TMapType = 'vec' | 'cva' | 'img' | 'cia' | 'ter' | 'cta' | 'ibo' | 'eva' | 'eia'
 
 type Buttons = {
   title: string
   layer: TMapType
-  layout:any
+  layout: any
 }
-const title = ref<Buttons[]>([{ title: '添加天地图影像底图', layer: 'cva',layout:null }])
+const title = ref<Buttons[]>([{ title: '添加天地图影像底图', layer: 'cva', layout: null }])
 onMounted(() => {
-  viewer.value = new Cesium.Viewer('cesiumContainer', {
+  const viewer = new Cesium.Viewer('cesiumContainer', {
     animation: false, // 关闭动画效果
-    baseLayerPicker: false, // 关闭底图切换按钮
+    baseLayerPicker: true, // 关闭底图切换按钮
     fullscreenButton: false, // 关闭全屏按钮
     geocoder: false, // 关闭地理编码器
     homeButton: false, // 关闭默认的地图导航按钮
     infoBox: false, // 关闭信息框
-    sceneModePicker: false, // 关闭场景模式切换按钮
+    sceneModePicker: true, // 关闭场景模式切换按钮
     selectionIndicator: false, // 关闭选中指示器
     timeline: false, // 关闭时间轴
     navigationHelpButton: false, // 关闭帮助按钮
     navigationInstructionsInitiallyVisible: false, // 隐藏导航提示
-    scene3DOnly: true, // 仅显示三维场景
-    shouldAnimate: true, // 开启动画效果
-    clock: new Cesium.Clock() // 开启时钟
+    scene3DOnly: false, // 仅显示三维场景
+    shouldAnimate: true // 开启动画效果
+    // clock: new Cesium.Clock() // 开启时钟
   })
-  viewer.value.scene.globe.enableLighting = true // 开启光照
-  viewer.value.scene.globe.depthTestAgainstTerrain = true // 开启深度测试
-  viewer.value.scene.debugShowFramesPerSecond = true // 显示帧率
+  console.log(viewer, 'viewer')
+  viewer.scene.globe.enableLighting = true // 开启光照
+  viewer.scene.globe.depthTestAgainstTerrain = true // 开启深度测试
+  viewer.scene.debugShowFramesPerSecond = true // 显示帧率
   setTimeout(() => {
     console.log(LngLat.value)
-    viewer.value.camera.flyTo({
-      destination: Cesium.Cartesian3.fromDegrees(LngLat.value[0], LngLat.value[1], 1000), // 飞行到当前经纬度
-      duration: 1, // 飞行时间
-      orientation: {
-        heading: Cesium.Math.toRadians(0), // 航向角度
-        pitch: Cesium.Math.toRadians(-90), // 俯仰角度
-        roll: 0 // 翻滚角度
-      }
-    })
+    // viewer!.camera.flyTo({
+    //   destination: Cesium.Cartesian3.fromDegrees(LngLat.value[0], LngLat.value[1], 1000), // 飞行到当前经纬度
+    //   duration: 1, // 飞行时间
+    //   orientation: {
+    //     heading: Cesium.Math.toRadians(0), // 航向角度
+    //     pitch: Cesium.Math.toRadians(-90), // 俯仰角度
+    //     roll: 0 // 翻滚角度
+    //   }
+    // })
   }, 50)
+  const camera = viewer.scene.camera
+  // camera.flyTo({
+  //   destination: Cesium.Cartesian3.fromDegrees(-73.98580932617188, 40.74843406689482, 363.34038727246224),
+  //   complete: function () {
+  //     setTimeout(function () {
+  //       camera.flyTo({
+  //         destination: Cesium.Cartesian3.fromDegrees(-73.98585975679403, 40.75759944127251, 186.50838555841779),
+  //         orientation: {
+  //           heading: Cesium.Math.toRadians(200.0),
+  //           pitch: Cesium.Math.toRadians(-50.0)
+  //         },
+  //         easingFunction: Cesium.EasingFunction.LINEAR_NONE
+  //       })
+  //     }, 1000)
+  //   }
+  // })
+  console.log(camera,'camera')
+  // viewer.value.scene.screenSpaceCameraController.tiltEventTypes = [
+  //   Cesium.CameraEventType.RIGHT_DRAG,
+  //   Cesium.CameraEventType.PINCH,
+  //   {
+  //     eventType: Cesium.CameraEventType.LEFT_DRAG,
+  //     modifier: Cesium.KeyboardEventModifier.CTRL
+  //   },
+  //   {
+  //     eventType: Cesium.CameraEventType.RIGHT_DRAG,
+  //     modifier: Cesium.KeyboardEventModifier.CTRL
+  //   }
+  // ]
+  const controller = new Cesium.CameraEventAggregator(viewer.canvas)
+  console.log(controller, 'controller')
+  viewer.scene.screenSpaceCameraController.zoomEventTypes = [
+    Cesium.CameraEventType.RIGHT_DRAG, // 鼠标右键拖动
+    // Cesium.CameraEventType.MIDDLE_DRAG,
+    Cesium.CameraEventType.WHEEL, // 滚轮
+    Cesium.CameraEventType.PINCH // 手机上面的两指
+  ]
+  const d = controller.getStartMousePosition(Cesium.CameraEventType.RIGHT_DRAG)
+  console.log(d, 'd')
+  viewer.scene.screenSpaceCameraController.inertiaTranslate = 1 // 平移惯性
+  // viewer.value.scene.screenSpaceCameraController.enableRotate = false // 禁止旋转
+  // wgs84ToWindowCoordinates(viewer.value)
+  // console.log(controller, '1=1=1=1=')
+  // controller.enableLook = false
+  // controller.enableRotate = false
+  viewer.scene.screenSpaceCameraController.inertiaZoom = 0 // 缩放惯性
+  viewer.scene.screenSpaceCameraController.enableTranslate = false
+  viewer.scene.screenSpaceCameraController.enableZoom = true // 控制缩放
+  // controller.enableInputs = false
+  // controller.zoomEventTypes = [
+  //   // Cesium.CameraEventType.RIGHT_DRAG, // 鼠标右键拖动
+  //   Cesium.CameraEventType.MIDDLE_DRAG,
+  //   Cesium.CameraEventType.WHEEL, // 滚轮
+  //   Cesium.CameraEventType.PINCH // 手机上面的两指
+  // ]
+  // console.log(controller, '1=1=1=1111=')
+
+  // controller.enableTranslate = false
+  // 添加天地图影像底图
   // var tencentImageryProvider = new Cesium.UrlTemplateImageryProvider({
   //   url: 'https://p2.map.gtimg.com/sateTiles/{z}/{sx}/{sy}/{x}_{reverseY}.jpg?version=400',
   //   customTags: {
@@ -72,6 +132,29 @@ onMounted(() => {
   //     }
   //   }
   // })
+
+  // 使用 ViewportQuad 创建一个显示图片的区域
+  var viewportQuad = new Cesium.ViewportQuad()
+
+  // 定义了四边形在视口中的位置
+  viewportQuad.rectangle = new Cesium.BoundingRectangle(100, 100, 200, 40)
+
+  // 添加进画布
+  viewer.scene.primitives.add(viewportQuad)
+
+  viewportQuad.material = new Cesium.Material({
+    fabric: {
+      type: 'Image',
+      uniforms: {
+        color: new Cesium.Color(1.0, 1.0, 1.0, 1.0),
+        image: Cesium.buildModuleUrl('Assets/Images/bing_maps_credit.png')
+      }
+    }
+  })
+  // 在渲染循环中调用 render 方法
+  // viewer.scene.postRender.addEventListener(function (scene, time) {
+  //   viewportQuad.render(scene.context)
+  // })
 })
 /**
  * 为cesimu添加天地图的底图
@@ -82,24 +165,43 @@ onMounted(() => {
  */
 const updateMap = (item: Buttons) => {
   // 添加天地图影像注记底图
-  if (item.title !== '添加天地图影像底图') {
-    item.title = '添加天地图影像底图'
-    // 删除
-    console.log(viewer.value.imageryLayers,item.layout)
-    viewer.value.imageryLayers.remove(item.layout)
-    return
-  }
-  item.layout = new Cesium.WebMapTileServiceImageryProvider({
-    url: `http://t0.tianditu.gov.cn/${item.layer}_w/wmts?tk=d434002ddef854e56c24ce68e885a55b`,
-    layer:item.layer,
-    style: 'default',
-    tileMatrixSetID: 'w',
-    format: 'tiles',
-    maximumLevel: 18
-  })
-  item.title = '刪除天地图影像底图'
-  viewer.value.imageryLayers.addImageryProvider(item.layout)
+  // if (item.title !== '添加天地图影像底图') {
+  //   item.title = '添加天地图影像底图'
+  //   // 删除
+  //   console.log(viewer.value.imageryLayers, item.layout)
+  //   viewer.value.imageryLayers.remove(item.layout)
+  //   return
+  // }
+  // item.layout = new Cesium.WebMapTileServiceImageryProvider({
+  //   url: `http://t0.tianditu.gov.cn/${item.layer}_w/wmts?tk=d434002ddef854e56c24ce68e885a55b`,
+  //   layer: item.layer,
+  //   style: 'default',
+  //   tileMatrixSetID: 'w',
+  //   format: 'tiles',
+  //   maximumLevel: 18
+  // })
+  // item.title = '刪除天地图影像底图'
+  // viewer.value.imageryLayers.addImageryProvider(item.layout)
 }
+
+const wgs84ToWindowCoordinates = (viewer) => {
+  const position = Cesium.Cartesian3.fromDegrees(0.0, 0.0)
+  const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas)
+  handler.setInputAction(function (movement) {
+    console.log(Cesium.SceneTransforms.wgs84ToWindowCoordinates(viewer.scene, position))
+  }, Cesium.ScreenSpaceEventType.MOUSE_MOVE)
+}
+
+// const wgs84ToWindowCoordinates = (viewer) => {
+//   const scene = widget.scene;
+// const ellipsoid = scene.ellipsoid;
+// const position = Cesium.Cartesian3.fromDegrees(0.0, 0.0);
+// const handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
+// handler.setInputAction(function(movement) {
+//     console.log(Cesium.SceneTransforms.wgs84ToWindowCoordinates(scene, position));
+// }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+//   // 添加一个点
+// }
 </script>
 <style>
 #cesiumContainer {
