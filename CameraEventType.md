@@ -1,5 +1,0 @@
-- CameraEventType.LEFT_DRAG : 按下鼠标左键，然后移动鼠标并释放按钮。
-- CameraEventType.MIDDLE_DRAG : 按下鼠标中键，然后移动鼠标并释放按钮。
-- CameraEventType.RIGHT_DRAG : 按下鼠标右键，然后移动鼠标并释放按钮。
-- CameraEventType.WHEEL : 使用鼠标滚轮。
-- CameraEventType.PINCH : 使用触控板或鼠标滚轮缩放。
