@@ -1,0 +1,53 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>kmz</title>
+    <script src="
+    https://cdn.jsdelivr.net/npm/adm-zip@0.5.15/adm-zip.min.js
+    "></script>
+    <script src="
+https://cdn.jsdelivr.net/npm/xml-js@1.6.11/dist/xml-js.min.js
+"></script>
+    <script src="
+https://cdn.jsdelivr.net/npm/xml2js@0.6.2/lib/xml2js.min.js
+"></script>
+  </head>
+  <body>
+    <script type="module">
+      import  AdmZip  from 'adm-zip'
+      // const AdmZip = require('adm-zip')
+      import xmlParser from 'xml2js'
+      // const xmlParser = require('xml2js')
+
+      // 读取 KMZ 文件
+      const zip = new AdmZip('C:\\Users\\hover\\Pictures\\新建文件夹\\新建航点航线.kmz')
+
+      // 解压 KMZ 文件中的 KML 文件
+      const kmlEntries = zip.getEntries().filter((entry) => entry.entryName.endsWith('.kml'))
+
+      if (kmlEntries.length > 0) {
+        const kmlEntry = kmlEntries[0]
+        const kmlContent = zip.readAsText(kmlEntry)
+
+        // 解析 KML 文件
+        xmlParser.parseString(kmlContent, (parseErr, result) => {
+          if (parseErr) throw parseErr
+
+          // 获取第一个 Placemark 的 name 和 coordinates
+          const placemark = result.kml.Document[0].Placemark[0]
+          const name = placemark.name[0]
+          const description = placemark.description ? placemark.description[0] : ''
+          const coordinates = placemark.Point[0].coordinates[0]
+
+          console.log(`Name: ${name}`)
+          console.log(`Description: ${description}`)
+          console.log(`Coordinates: ${coordinates}`)
+        })
+      } else {
+        console.log('No KML files found in the KMZ archive.')
+      }
+    </script>
+  </body>
+</html> -->
