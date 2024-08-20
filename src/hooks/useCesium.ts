@@ -26,7 +26,7 @@ class UseCesium {
     this.viewer.scene.globe.enableLighting = true // 开启光照
     this.viewer.scene.globe.depthTestAgainstTerrain = true // 开启深度测试
     this.viewer.scene.debugShowFramesPerSecond = true // 显示帧率
-    this.flyTo()
+    // this.flyTo()
     return this.viewer
   }
 

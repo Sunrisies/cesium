@@ -16,6 +16,7 @@
 ### credit : Credit
 
 > 获取此地形提供程序处于活动状态时要显示的积分。通常，这用于证明地形的来源。
+> 如果是默认的情况下，是undefined。
 
 ### errorEvent : Event.<TerrainProvider.ErrorEvent>
 > 获取当地形提供程序遇到异步错误时引发的事件。通过订阅该事件，您将收到错误通知，并有可能从中恢复。事件侦听器会传递一个TileProviderError实例。
@@ -45,3 +46,35 @@
 > - options.width: number  规则网格中水平方向的顶点数。
 > - options.height: number  规则网格中垂直方向的顶点数
 > - returns: 索引列表。返回的 Uint16Array 为 64KB 或更少,Uint32Array 为 4GB 或更少。 
+
+### getLevelMaximumGeometricError(level) → number
+> 获取指定级别的最大几何误差。
+> - options.level: number  级别
+> - returns: number  最大几何误差
+
+### getTileDataAvailable(x, y, level) → boolean|undefined
+> 确定图块的数据是否可供加载。
+> - options.x: number  瓷砖的X坐标
+> - options.y: number  瓷砖的Y坐标
+> - options.level: number  瓷砖的级别
+> - returns: boolean|undefined  如果地形提供者不支持则未定义，否则 true 或 false。
+
+### loadTileDataAvailability(x, y, level) → undefined|Promise.<void>
+> 加载瓷砖的可用性信息。
+> - options.x: number  瓷砖的X坐标
+> - options.y: number  瓷砖的Y坐标
+> - options.level: number  瓷砖的级别
+> - returns: undefined|Promise.<void>  如果地形提供者不支持则未定义，否则返回一个Promise，该Promise在加载完成时解决。
+
+
+### requestTileGeometry(x, y, level, request) → Promise.<TerrainData>|undefined
+> 请求给定图块的几何形状。结果必须包括地形数据，并且可以选择包括水掩模和哪些子图块可用的指示。
+> - options.x: number  瓷砖的X坐标
+> - options.y: number  瓷砖的Y坐标
+> - options.level: number  瓷砖的级别
+> - options.request: Request  请求对象
+> - returns: Promise.<TerrainData>|undefined  如果地形提供者不支持则未定义，否则返回一个Promise，该Promise在加载完成时解决，并返回一个TerrainData对象。
+
+### Cesium.TerrainProvider.ErrorEvent(err)
+> 构造函数
+> - options.err: TileProviderError  错误对象

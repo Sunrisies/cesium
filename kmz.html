@@ -1,53 +1,230 @@
-<!-- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>kmz</title>
-    <script src="
-    https://cdn.jsdelivr.net/npm/adm-zip@0.5.15/adm-zip.min.js
-    "></script>
-    <script src="
-https://cdn.jsdelivr.net/npm/xml-js@1.6.11/dist/xml-js.min.js
-"></script>
-    <script src="
-https://cdn.jsdelivr.net/npm/xml2js@0.6.2/lib/xml2js.min.js
-"></script>
-  </head>
-  <body>
-    <script type="module">
-      import  AdmZip  from 'adm-zip'
-      // const AdmZip = require('adm-zip')
-      import xmlParser from 'xml2js'
-      // const xmlParser = require('xml2js')
-
-      // 读取 KMZ 文件
-      const zip = new AdmZip('C:\\Users\\hover\\Pictures\\新建文件夹\\新建航点航线.kmz')
-
-      // 解压 KMZ 文件中的 KML 文件
-      const kmlEntries = zip.getEntries().filter((entry) => entry.entryName.endsWith('.kml'))
-
-      if (kmlEntries.length > 0) {
-        const kmlEntry = kmlEntries[0]
-        const kmlContent = zip.readAsText(kmlEntry)
-
-        // 解析 KML 文件
-        xmlParser.parseString(kmlContent, (parseErr, result) => {
-          if (parseErr) throw parseErr
-
-          // 获取第一个 Placemark 的 name 和 coordinates
-          const placemark = result.kml.Document[0].Placemark[0]
-          const name = placemark.name[0]
-          const description = placemark.description ? placemark.description[0] : ''
-          const coordinates = placemark.Point[0].coordinates[0]
-
-          console.log(`Name: ${name}`)
-          console.log(`Description: ${description}`)
-          console.log(`Coordinates: ${coordinates}`)
-        })
-      } else {
-        console.log('No KML files found in the KMZ archive.')
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.79.1/Build/Cesium/Cesium.js"></script>
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.79.1/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
+    <title>Document</title>
+    <style>
+      html,
+      body,
+      #container {
+        margin: 0;
+        padding: 0;
+        height: 100%;
       }
-    </script>
+    </style>
+  </head>
+
+  <body>
+    <div id="container">
+      <div style="position: fixed; background-color: rgba(255, 255, 255, 0.5); z-index: 2000">
+        <select id="select1" onchange="select1(this)">
+          <option value="1">CesiumTerrainProvider - Cesium World Terrain</option>
+          <option value="2">CesiumTerrainProvider - Cesium - no effects World Terrain</option>
+          <option value="3">CesiumTerrainProvider - Cesium World Terrain w/ Lighting</option>
+          <option value="4">CesiumTerrainProvider - Cesium World Terrain w/ Water</option>
+          <option value="5">EllipsoidTerrainProvider</option>
+          <option value="6">VRTheWorldTerrainProvider</option>
+          <option value="7">ArcGISTerrainProvider</option>
+        </select>
+        <br />
+        <select id="select2" onchange="select2(this)">
+          <option value="1">珠穆朗玛峰</option>
+          <option value="2">半圆顶</option>
+          <option value="3">旧金山湾</option>
+        </select>
+        <br />
+        <button onclick="btn1()" style="margin-right: 50px">9级珠穆朗玛峰地形示例</button
+        ><button onclick="btn2()">最详细的珠穆朗玛峰地形样本</button>
+        <br />
+        <input
+          type="checkbox"
+          id="chk1"
+          onchange="viewer.scene.globe.enableLighting=document.getElementById('chk1').checked"
+          checked
+        />启用照明
+        <input type="checkbox" onchange="viewer.scene.fog.enabled=document.getElementById('chk2').checked" id="chk2" />启用雾
+      </div>
+    </div>
   </body>
-</html> -->
+  <script>
+    Cesium.Ion.defaultAccessToken =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI1YmI0YWE5MS0wMDNlLTQ1YzctYWEyYy0wMmUzNzA3ZTgzMTciLCJpZCI6MTIwMzg1LCJpYXQiOjE2NzI5MDc2NzV9.YvsSYJ-iIpkJdPyiPKdfIvF20fyqacMfF0l_myCnvnM'
+    let worldTerrain = Cesium.createWorldTerrain({
+      //requestWaterMask和requestVertexNormals是可选的配置项，
+      //告诉Cesium是否需要请求额外的水、光数据。这两个选项默认是设为false的。
+      requestWaterMask: true,
+      requestVertexNormals: true
+    })
+
+    let viewer = new Cesium.Viewer('container', {
+      terrainProvider: worldTerrain
+    })
+    //启用光照
+    viewer.scene.globe.enableLighting = true
+    let ellipsoidProvider = new Cesium.EllipsoidTerrainProvider()
+    // let vrTheWorldProvider = new Cesium.VRTheWorldTerrainProvider({
+    //   url: 'http://www.vr-theworld.com/vr-theworld/tiles1.0.0/73/',
+    //   credit: 'Terrain data courtesy VT MÄK'
+    // })
+
+    let arcGisProvider = new Cesium.ArcGISTiledElevationTerrainProvider({
+      url: 'https://elevation3d.arcgis.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer'
+    })
+  </script>
+  <script>
+    function lookAtMtEverest() {
+      let target = new Cesium.Cartesian3(300770.50872389384, 5634912.131394585, 2978152.2865545116)
+      let offset = new Cesium.Cartesian3(6344.974098678562, -793.3419798081741, 2499.9508860763162)
+      //设置相机的位置和偏移
+      viewer.camera.lookAt(target, offset)
+    }
+
+    function select1(e) {
+      switch (e.value) {
+        case '1':
+          viewer.terrainProvider = worldTerrain
+          viewer.scene.globe.enableLighting = true
+          break
+        case '2':
+          viewer.terrainProvider = Cesium.createWorldTerrain()
+          break
+        case '3':
+          viewer.terrainProvider = Cesium.createWorldTerrain({
+            requestVertexNormals: true
+          })
+          viewer.scene.globe.enableLighting = true
+          break
+        case '4':
+          viewer.terrainProvider = Cesium.createWorldTerrain({
+            requestWaterMask: true
+          })
+
+          break
+        case '5':
+          viewer.terrainProvider = ellipsoidProvider
+          break
+        case '6':
+          viewer.terrainProvider = vrTheWorldProvider
+          break
+        case '7':
+          viewer.terrainProvider = arcGisProvider
+          break
+      }
+    }
+
+    function select2(e) {
+      let target, offset
+      switch (e.value) {
+        case '1':
+          lookAtMtEverest()
+          break
+        case '2':
+          console.log('2')
+          target = new Cesium.Cartesian3(-2489625.0836225147, -4393941.44443024, 3882535.9454173897)
+          offset = new Cesium.Cartesian3(-6857.40902037546, 412.3284835694358, 2147.5545426812023)
+          viewer.camera.lookAt(target, offset)
+          break
+        case '3':
+          target = new Cesium.Cartesian3(-2708814.85583248, -4254159.450845907, 3891403.9457429945)
+          offset = new Cesium.Cartesian3(70642.66030209465, -31661.517948317807, 35505.179997143336)
+          viewer.camera.lookAt(target, offset)
+          break
+      }
+      viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY)
+    }
+
+    function createGrid(rectangleHalfSize) {
+      let gridWidth = 41
+      let gridHeight = 41
+      //珠峰纬度
+      let everestLatitude = Cesium.Math.toRadians(27.988257)
+      //珠峰经度
+      let everestLongitude = Cesium.Math.toRadians(86.925145)
+      let e = new Cesium.Rectangle(
+        everestLongitude - rectangleHalfSize,
+        everestLatitude - rectangleHalfSize,
+        everestLongitude + rectangleHalfSize,
+        everestLatitude + rectangleHalfSize
+      )
+      let terrainSamplePositions = []
+      for (let y = 0; y < gridHeight; ++y) {
+        for (let x = 0; x < gridWidth; ++x) {
+          //两点间的线性插值
+          let longitude = Cesium.Math.lerp(e.west, e.east, x / (gridWidth - 1))
+          let latitude = Cesium.Math.lerp(e.south, e.north, y / (gridHeight - 1))
+          //Cartographic(longitude,latitude,height) 由经度、维度和高度定义的位置
+          let position = new Cesium.Cartographic(longitude, latitude)
+          terrainSamplePositions.push(position)
+        }
+      }
+      return terrainSamplePositions
+    }
+
+    function sampleTerrainSuccess(terrainSamplePostions) {
+      let ellipsoid = Cesium.Ellipsoid.WGS84
+      //我们需要更多的线条来使得地形数据背后的objects能够正确地显示，
+      //只有最前面、最上面的objects才能是可见的。
+      viewer.scene.globe.depthTestAgainstTerrain = true
+      //暂时停止entities的所有增删改操作
+      viewer.entities.suspendEvents()
+      //清除entities中的所有实体
+      viewer.entities.removeAll()
+      for (let i = 0; i < terrainSamplePostions.length; ++i) {
+        let position = terrainSamplePostions[i]
+        viewer.entities.add({
+          name: position.height.toFixed(1),
+          position: ellipsoid.cartographicToCartesian(position),
+          billboard: {
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            scale: 0.7,
+            image: '../cesium学习/05加载和样式化实体/img/facility.gif'
+          },
+          //设置实体的标注
+          label: {
+            text: position.height.toFixed(1), //标注名称
+            font: '10pt monospace',
+            horizontalOrigin: Cesium.HorizontalOrigin.CENTER, //标注文字所在位置
+            pixelOffset: new Cesium.Cartesian2(0, -14),
+            fillColor: Cesium.Color.BLACK,
+            outlineColor: Cesium.Color.RED,
+            showBackground: true,
+            backgroundColor: Cesium.Color.YELLOW,
+            backgroundPadding: new Cesium.Cartesian2(4, 3)
+          }
+        })
+      }
+      //把队列中的所有对entities的操作，一次性执行
+      viewer.entities.resumeEvents()
+    }
+
+    function btn1() {
+      let terrainSamplePositions = createGrid(0.005)
+      //Cesium.sampleTerrain 地形高度查询
+      //第一个参数：地形图层加载函数
+      //第二个参数：从中查询地形高度的地形详细级别
+      //第三个参数：要查询高度的位置集合
+      //返回值是一个promise
+      Cesium.sampleTerrain(viewer.terrainProvider, 9, terrainSamplePositions).then((data) => {
+        sampleTerrainSuccess(data)
+      })
+      lookAtMtEverest()
+    }
+
+    function btn2() {
+      //因为地形详细级别需要最高，因此这里createGrid参数要足够小，即创建的位置集合要密集
+      let terrainSamplePositions = createGrid(0.0005)
+      //Cesium.sampleTerrainMostDetailed 地形高度查询，地形详细级别为最高
+      //第一个参数：地形图层加载函数
+      //第二个参数：要查询高度的位置集合
+      //返回值是一个promise
+      Cesium.sampleTerrainMostDetailed(viewer.terrainProvider, terrainSamplePositions).then((data) => {
+        sampleTerrainSuccess(data)
+      })
+      lookAtMtEverest()
+    }
+  </script>
+</html>

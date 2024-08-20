@@ -14,6 +14,11 @@ const router = createRouter({
       name: "Camera",
       component: () => import("@/views/Camera.vue"),
     },
+    {
+      path: "/TerrainProvider",
+      name: "TerrainProvider",
+      component: () => import("@/views/TerrainProvider.vue"),
+    }
   ],
 });
 
